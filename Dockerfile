@@ -20,6 +20,7 @@ WORKDIR /src
 FROM rust:slim
 WORKDIR /src
 
+COPY --from=build /src/host/src/assets ./src/assets
 COPY --from=build /src/host/src/templates ./src/templates
 COPY --from=build /src/host/target/release/host ./host
 

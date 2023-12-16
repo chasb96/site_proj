@@ -2,6 +2,7 @@ mod app_state;
 mod handlebars;
 mod routes;
 mod index;
+mod assets;
 
 
 #[tokio::main]
