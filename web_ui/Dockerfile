@@ -4,13 +4,13 @@ WORKDIR /src
 RUN USER=root cargo new --bin web_ui
 WORKDIR /src/web_ui
 
-COPY ./web_ui/Cargo.lock ./Cargo.lock
-COPY ./web_ui/Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
 
 RUN cargo build --release
 RUN rm src/*.rs
 
-COPY ./web_ui/src ./src
+COPY ./src ./src
 
 RUN rm ./target/release/deps/web_ui*
 RUN cargo build --release
