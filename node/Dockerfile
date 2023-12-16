@@ -18,6 +18,9 @@ RUN cargo build --release
 WORKDIR /src
 
 FROM rust:slim
+
+HEALTHCHECK CMD curl --fail http://localhost/health || exit 1
+
 WORKDIR /src
 
 COPY --from=build /src/node/target/release/node ./node
