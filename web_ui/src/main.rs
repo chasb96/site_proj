@@ -3,7 +3,7 @@ mod handlebars;
 mod routes;
 mod index;
 mod assets;
-
+mod users;
 
 #[tokio::main]
 async fn main() {

@@ -1,0 +1,2 @@
+database:
+  connection_string: postgresql://postgres:development@postgres_db:5432/3d2a
