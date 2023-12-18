@@ -37,13 +37,30 @@ pub async fn get_node(
     State(app_state): State<AppState>,
     Json(request): Json<GetNodeRequest>
 ) -> Result<Json<GetNodeResponse>, StatusCode> {
-    let node = match (request.id, Option::<i32>::None) {
-        (Some(id), None) => {
+    let parsed_host = match request.host {
+        Some(host_string) => Some(
+            Host::parse(&host_string)
+                .map_err(|_| StatusCode::BAD_REQUEST)?
+        ),
+        None => None,
+    };
+
+    let node = match (request.id, request.name, parsed_host, request.port) {
+        (Some(id), None, None, None) => {
             app_state.node_store
                 .get_by_id(id)
                 .await
         },
-        (None, _) => return Err(StatusCode::NOT_IMPLEMENTED),
+        (None, Some(name), None, None) => {
+            app_state.node_store
+                .get_by_name(name)
+                .await
+        },
+        (None, None, Some(host), Some(port)) => {
+            app_state.node_store
+                .get_by_address(host, port)
+                .await
+        },
         _ => return Err(StatusCode::BAD_REQUEST),
     };
 

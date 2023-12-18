@@ -17,12 +17,16 @@ async fn main() {
     let config = Config::from_env();
 
     let app_state = AppState::try_from(config)
-        .unwrap_or_else(|e| {
-            error!("{}", e); 
-            panic!("{}", e)
-        });
+        .inspect_err(|e| error!("{}", e))
+        .unwrap();
 
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:80")
+        .await
+        .inspect_err(|e| error!("{}", e))
+        .unwrap();
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:80").await.unwrap();
-    axum::serve(listener, routes::routes(app_state)).await.unwrap();
+    axum::serve(listener, routes::routes(app_state))
+        .await
+        .inspect_err(|e| error!("{}", e))
+        .unwrap();
 }

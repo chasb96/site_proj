@@ -74,4 +74,59 @@ impl NodeStore for PostgresDataStore {
 
         Ok(Some(node))
     }
+
+    async fn get_by_name(&self, name: String) -> Result<Option<Node>, GetNodeError> {
+        let query_result = {
+            let mut conn = self.connection_pool
+                .get()?;
+
+            nodes::table
+                .filter(nodes::name.eq(name))
+                .select(NodeModel::as_select())
+                .get_result(&mut conn)
+        };
+
+        let node_entity = match query_result {
+            Ok(node) => node,
+            Err(NotFound) => return Ok(None),
+            Err(e) => return Err(e.into()),
+        };
+
+        let node = Node {
+            id: node_entity.id,
+            name: node_entity.name,
+            host: Host::parse(&node_entity.host)?,
+            port: node_entity.port as u16,
+        };
+
+        Ok(Some(node))
+    }
+
+    async fn get_by_address(&self, host: Host, port: u16) -> Result<Option<Node>, GetNodeError> {
+        let query_result = {
+            let mut conn = self.connection_pool
+                .get()?;
+
+            nodes::table
+                .filter(nodes::host.eq(host.to_string()))
+                .filter(nodes::port.eq(port as i32))
+                .select(NodeModel::as_select())
+                .get_result(&mut conn)
+        };
+
+        let node_entity = match query_result {
+            Ok(node) => node,
+            Err(NotFound) => return Ok(None),
+            Err(e) => return Err(e.into()),
+        };
+
+        let node = Node {
+            id: node_entity.id,
+            name: node_entity.name,
+            host: Host::parse(&node_entity.host)?,
+            port: node_entity.port as u16,
+        };
+
+        Ok(Some(node))
+    }
 }

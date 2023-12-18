@@ -10,4 +10,7 @@ pub struct CreateNodeRequest {
 #[derive(Deserialize)]
 pub struct GetNodeRequest {
     pub id: Option<i32>,
+    pub name: Option<String>,
+    pub host: Option<String>,
+    pub port: Option<u16>,
 }
