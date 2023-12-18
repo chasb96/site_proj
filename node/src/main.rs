@@ -1,6 +1,8 @@
 use app_state::AppState;
 use config::Config;
 use log::error;
+use axum::serve;
+use tokio::net::TcpListener;
 
 mod routes;
 mod health;
@@ -14,19 +16,23 @@ mod nodes;
 async fn main() {
     env_logger::init();
 
-    let config = Config::from_env();
+    let config = Config::from_env()
+        .inspect_err(|e| error!("{:?}", e))
+        .unwrap();
 
     let app_state = AppState::try_from(config)
-        .inspect_err(|e| error!("{}", e))
+        .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:80")
+    let listener = TcpListener::bind("0.0.0.0:80")
         .await
-        .inspect_err(|e| error!("{}", e))
+        .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
-    axum::serve(listener, routes::routes(app_state))
+    let router = routes::routes(app_state);
+
+    serve(listener, router)
         .await
-        .inspect_err(|e| error!("{}", e))
+        .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 }
