@@ -4,15 +4,14 @@ use super::{UserStore, error::{CreateUserError, GetUserError, DeleteUserError}};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::data_store::postgres::users)]
-pub struct UserModel {
+struct UserModel {
     pub id: i32,
     pub username: String,
-    pub password_hash: String,
 }
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::data_store::postgres::users)]
-pub struct NewUserModel {
+struct NewUserModel {
     pub username: String,
     pub password_hash: String,
 }

@@ -15,7 +15,6 @@ RUN rm src/*.rs
 COPY ./src ./src
 
 RUN rm ./target/release/deps/node*
-COPY ./migrations ./migrations
 RUN cargo build --release
 
 WORKDIR /src

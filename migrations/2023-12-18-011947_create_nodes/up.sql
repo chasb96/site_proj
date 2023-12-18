@@ -1,0 +1,7 @@
+CREATE TABLE nodes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(64) UNIQUE NOT NULL,
+    host VARCHAR(128) NOT NULL,
+    port INTEGER NOT NULL,
+    UNIQUE(host, port)
+)

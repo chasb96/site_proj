@@ -2,6 +2,7 @@ mod request;
 mod response;
 
 use axum::{extract::State, Json, http::StatusCode};
+use log::error;
 use crate::app_state::AppState;
 use self::{request::{CreateUserRequest, GetUserRequest, DeleteUserRequest}, response::{CreateUserResponse, GetUserResponse}};
 use super::store::UserStore;
@@ -18,7 +19,10 @@ pub async fn create_user(
         Ok(user) => CreateUserResponse {
             id: user.id
         },
-        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Err(e) => {
+            error!("{:?}", e);
+            return Err(StatusCode::INTERNAL_SERVER_ERROR)
+        },
     };
 
     Ok(Json(response))
@@ -48,7 +52,10 @@ pub async fn get_user(
             username: user.username,
         },
         Ok(None) => return Err(StatusCode::NOT_FOUND),
-        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Err(e) => {
+            error!("{:?}", e);
+            return Err(StatusCode::INTERNAL_SERVER_ERROR)
+        },
     };
 
     Ok(Json(response))
@@ -65,6 +72,9 @@ pub async fn delete_user(
     match delete_result {
         Ok(true) => StatusCode::NO_CONTENT,
         Ok(false) => StatusCode::NOT_FOUND,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        Err(e) => {
+            error!("{:?}", e);
+            return StatusCode::INTERNAL_SERVER_ERROR
+        },
     }
 }
