@@ -3,7 +3,7 @@ version: '3'
 services:
   web_ui:
     build: ./web_ui
-    ports: 
+    ports:
     - "80:80"
   node:
     build: ./node

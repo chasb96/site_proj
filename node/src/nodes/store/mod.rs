@@ -2,7 +2,7 @@ use url::Host;
 use self::error::{CreateNodeError, GetNodeError};
 use super::Node;
 
-mod error;
+pub mod error;
 mod postgres;
 
 pub trait NodeStore {
@@ -10,7 +10,7 @@ pub trait NodeStore {
 
     async fn get_by_id(&self, id: i32) -> Result<Option<Node>, GetNodeError>;
 
-    async fn get_by_name(&self, name: String) -> Result<Option<Node>, GetNodeError>;
+    async fn get_by_name<'a>(&self, name: &'a str) -> Result<Option<Node>, GetNodeError>;
 
-    async fn get_by_address(&self, host: Host, port: u16) -> Result<Option<Node>, GetNodeError>;
+    async fn get_by_address<'a>(&self, host: &'a Host, port: u16) -> Result<Option<Node>, GetNodeError>;
 }

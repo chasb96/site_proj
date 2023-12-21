@@ -17,7 +17,7 @@ struct NewUserModel {
 }
 
 impl UserStore for PostgresDataStore {
-    async fn create(&self, username: String) -> Result<User, CreateUserError> {
+    async fn create(&self, username: String, password_hash: String) -> Result<User, CreateUserError> {
         let user_entity = {
             let mut conn = self.connection_pool
                 .get()?;
@@ -26,7 +26,7 @@ impl UserStore for PostgresDataStore {
                 .values(
                     NewUserModel {
                         username,
-                        password_hash: "".to_string(),
+                        password_hash,
                     }
                 )
                 .returning(UserModel::as_returning())
@@ -66,13 +66,13 @@ impl UserStore for PostgresDataStore {
         Ok(Some(user))
     }
 
-    async fn get_by_username(&self, username: String) -> Result<Option<User>, GetUserError> {
+    async fn get_by_username<'a>(&self, username: &'a str) -> Result<Option<User>, GetUserError> {
         let query_result = {
             let mut conn = self.connection_pool
                 .get()?;
 
             users::table
-                .filter(users::username.eq(username))
+                .filter(users::username.eq(&username))
                 .select(UserModel::as_select())
                 .get_result(&mut conn)
         };

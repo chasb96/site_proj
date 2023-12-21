@@ -1,80 +1,43 @@
-mod request;
-mod response;
+use axum::{extract::FromRequestParts, async_trait, http::{request::Parts, StatusCode}};
 
-use axum::{extract::State, Json, http::StatusCode};
-use log::error;
-use crate::app_state::AppState;
-use self::{request::{CreateUserRequest, GetUserRequest, DeleteUserRequest}, response::{CreateUserResponse, GetUserResponse}};
+use crate::data_store::postgres::PostgresDataStore;
 use super::store::UserStore;
 
-pub async fn create_user(
-    State(app_state): State<AppState>, 
-    Json(request): Json<CreateUserRequest>
-) -> Result<Json<CreateUserResponse>, StatusCode> {
-    let user = app_state.user_store
-        .create(request.username)
-        .await;
+mod request;
+mod response;
+pub mod routes;
 
-    let response = match user {
-        Ok(user) => CreateUserResponse {
-            id: user.id
-        },
-        Err(e) => {
-            error!("{:?}", e);
-            return Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
-    };
+pub struct UserStoreExtractor(PostgresDataStore);
 
-    Ok(Json(response))
+impl UserStore for UserStoreExtractor {
+    async fn create(&self, username: String, password_hash: String) -> Result<super::User, super::store::error::CreateUserError> {
+        self.0.create(username, password_hash).await
+    }
+
+    async fn get_by_id(&self, id: i32) -> Result<Option<super::User>, super::store::error::GetUserError> {
+        self.0.get_by_id(id).await
+    }
+
+    async fn get_by_username<'a>(&self, username: &'a str) -> Result<Option<super::User>, super::store::error::GetUserError> {
+        self.0.get_by_username(username).await
+    }
+
+    async fn delete(&self, id: i32) -> Result<bool, super::store::error::DeleteUserError> {
+        self.0.delete(id).await
+    }
 }
 
-pub async fn get_user(
-    State(app_state): State<AppState>,
-    Json(request): Json<GetUserRequest>
-) -> Result<Json<GetUserResponse>, StatusCode> {
-    let user = match (request.id, request.username) {
-        (Some(id), None) => {
-            app_state.user_store
-                .get_by_id(id)
-                .await
-        }
-        (None, Some(un)) => {
-            app_state.user_store
-                .get_by_username(un)
-                .await
-        },
-        _ => return Err(StatusCode::BAD_REQUEST)
-    };
-
-    let response = match user {
-        Ok(Some(user)) => GetUserResponse {
-            id: user.id,
-            username: user.username,
-        },
-        Ok(None) => return Err(StatusCode::NOT_FOUND),
-        Err(e) => {
-            error!("{:?}", e);
-            return Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
-    };
-
-    Ok(Json(response))
+impl Default for UserStoreExtractor {
+    fn default() -> Self {
+        UserStoreExtractor(PostgresDataStore::default())
+    }
 }
 
-pub async fn delete_user(
-    State(app_state): State<AppState>,
-    Json(request): Json<DeleteUserRequest>
-) -> StatusCode {
-    let delete_result = app_state.user_store
-        .delete(request.id)
-        .await;
+#[async_trait]
+impl<T> FromRequestParts<T> for UserStoreExtractor {
+    type Rejection = StatusCode;
 
-    match delete_result {
-        Ok(true) => StatusCode::NO_CONTENT,
-        Ok(false) => StatusCode::NOT_FOUND,
-        Err(e) => {
-            error!("{:?}", e);
-            return StatusCode::INTERNAL_SERVER_ERROR
-        },
+    async fn from_request_parts<'a, 'b>(_: &'a mut Parts, _: &'b T) ->  Result<Self,Self::Rejection> {
+        Ok(UserStoreExtractor::default())
     }
 }

@@ -1,4 +1,6 @@
-use app_state::AppState;
+#![feature(future_join)]
+#![feature(once_cell_try)]
+
 use config::Config;
 use log::error;
 use axum::serve;
@@ -7,10 +9,12 @@ use tokio::net::TcpListener;
 mod routes;
 mod health;
 mod config;
-mod app_state;
 mod data_store;
 mod users;
 mod nodes;
+mod auth;
+mod util;
+mod startup;
 
 #[tokio::main]
 async fn main() {
@@ -20,7 +24,7 @@ async fn main() {
         .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
-    let app_state = AppState::try_from(config)
+    startup::on_start(&config)
         .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
@@ -29,7 +33,7 @@ async fn main() {
         .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
-    let router = routes::routes(app_state);
+    let router = routes::routes();
 
     serve(listener, router)
         .await

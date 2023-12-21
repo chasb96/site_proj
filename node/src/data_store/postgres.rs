@@ -1,51 +1,55 @@
-use std::{error::Error, fmt::Display};
-
+use std::{error::Error, fmt::Display, sync::OnceLock};
 use diesel::{PgConnection, r2d2::ConnectionManager};
 use r2d2::Pool;
-use crate::config::Config;
+use crate::config::DatabaseConfig;
 
-pub struct PostgresDataStore {
-    pub connection_pool: Pool<ConnectionManager<PgConnection>>,
-}
+static CONNECTION_POOL: OnceLock<Pool<ConnectionManager<PgConnection>>> = OnceLock::new();
 
 #[derive(Debug)]
-pub enum CreatePostgresDataStoreError {
-    Pool(r2d2::Error)
-}
+pub struct InitializeConnectionPoolError(r2d2::Error);
 
-impl Error for CreatePostgresDataStoreError { }
+impl Error for InitializeConnectionPoolError { }
 
-impl Display for CreatePostgresDataStoreError {
+impl Display for InitializeConnectionPoolError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Pool(p) => p.fmt(f),
-        }
+        self.0.fmt(f)
     }
 }
 
-impl From<r2d2::Error> for CreatePostgresDataStoreError {
+impl From<r2d2::Error> for InitializeConnectionPoolError {
     fn from(value: r2d2::Error) -> Self {
-        Self::Pool(value)
+        Self(value)
     }
 }
 
-impl TryFrom<&Config> for PostgresDataStore {
-    type Error = CreatePostgresDataStoreError;
+pub fn initialize_connection_pool(config: &DatabaseConfig) -> Result<(), InitializeConnectionPoolError> {
+    CONNECTION_POOL
+        .get_or_try_init(|| {
+            let connection_string = config
+                .connection_string
+                .to_string();
 
-    fn try_from(value: &Config) -> Result<Self, Self::Error> {
-        let connection_string = value
-            .database
-            .connection_string
-            .to_string();
+            let manager: ConnectionManager<PgConnection> = 
+                ConnectionManager::new(connection_string);
 
-        let manager = ConnectionManager::<PgConnection>::new(connection_string);
-
-        let pool = Pool::builder()
-            .build(manager)?;
-
-        Ok(Self {
-            connection_pool: pool
+            Pool::builder()
+                .build(manager)
         })
+        .map(|_| ())
+        .map_err(Into::into)
+}
+
+pub struct PostgresDataStore {
+    pub connection_pool: &'static Pool<ConnectionManager<PgConnection>>,
+}
+
+impl Default for PostgresDataStore {
+    fn default() -> Self {
+        Self { 
+            connection_pool: CONNECTION_POOL
+                .get()
+                .expect("Application skipped startup process") 
+        }
     }
 }
 

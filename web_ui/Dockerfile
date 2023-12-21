@@ -1,27 +1,16 @@
-FROM rust AS build
+FROM golang
 WORKDIR /src
 
-RUN USER=root cargo new --bin web_ui
-WORKDIR /src/web_ui
+COPY go.mod ./
 
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
+RUN go mod download
 
-RUN cargo build --release
-RUN rm src/*.rs
+COPY *.go ./
+COPY ./templates ./templates
+COPY ./assets ./assets
 
-COPY ./src ./src
+RUN CGO_ENABLED=0 GOOS=linux go build -o /web_ui
 
-RUN rm ./target/release/deps/web_ui*
-RUN cargo build --release
+EXPOSE 80
 
-WORKDIR /src
-
-FROM rust:slim
-WORKDIR /src
-
-COPY --from=build /src/web_ui/src/assets ./src/assets
-COPY --from=build /src/web_ui/src/templates ./src/templates
-COPY --from=build /src/web_ui/target/release/web_ui ./web_ui
-
-CMD ["./web_ui"]
+CMD [ "/web_ui" ]

@@ -75,7 +75,7 @@ impl NodeStore for PostgresDataStore {
         Ok(Some(node))
     }
 
-    async fn get_by_name(&self, name: String) -> Result<Option<Node>, GetNodeError> {
+    async fn get_by_name<'a>(&self, name: &'a str) -> Result<Option<Node>, GetNodeError> {
         let query_result = {
             let mut conn = self.connection_pool
                 .get()?;
@@ -102,7 +102,7 @@ impl NodeStore for PostgresDataStore {
         Ok(Some(node))
     }
 
-    async fn get_by_address(&self, host: Host, port: u16) -> Result<Option<Node>, GetNodeError> {
+    async fn get_by_address<'a>(&self, host: &'a Host, port: u16) -> Result<Option<Node>, GetNodeError> {
         let query_result = {
             let mut conn = self.connection_pool
                 .get()?;

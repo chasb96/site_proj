@@ -1,26 +1,28 @@
-use std::error::Error;
+use std::{error::Error, fmt::Display};
+use crate::{data_store::postgres::{initialize_connection_pool, InitializeConnectionPoolError}, config::Config};
 
-use diesel::{PgConnection, Connection, ConnectionError};
-use diesel_migrations::{MigrationHarness, embed_migrations, EmbeddedMigrations};
-use crate::app_state::AppState;
-
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/");
-
-pub enum PostgresStartError {
-    Connection(ConnectionError),
-    // Migration(diesel_migrations::RunMigrationsError)
+#[derive(Debug)]
+pub enum PostgresStartupError {
+    ConnectionPool(InitializeConnectionPoolError)
 }
 
-// impl From<RunMigrationsError> for PostgresStartError {
-//     fn from(value: RunMigrationsError) -> Self {
-//         Self::Migration(value)
-//     }
-// }
+impl Error for PostgresStartupError { }
 
-pub fn on_start(app_state: &AppState) -> Result<(), PostgresStartError> {
-    let mut conn: PgConnection = Connection::establish(&app_state.config.database.connection_string).unwrap();
+impl Display for PostgresStartupError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PostgresStartupError::ConnectionPool(e) => e.fmt(f),
+        }
+    }
+}
 
-    EmbeddedMigrations::new().run_pending_migrations(conn)?;
+impl From<InitializeConnectionPoolError> for PostgresStartupError {
+    fn from(value: InitializeConnectionPoolError) -> Self {
+        Self::ConnectionPool(value)
+    }
+}
 
-    Ok(())
+pub fn postgres_start(config: &Config) -> Result<(), PostgresStartupError> {
+    initialize_connection_pool(&config.database)
+        .map_err(Into::into)
 }

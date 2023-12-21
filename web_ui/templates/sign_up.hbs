@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="container-fluid mt-5 d-flex justify-content-center">
+    <div class="card" style="width: 34rem;">
+        <div class="card-header bg-dark text-white px-3 pb-1 pt-2 h3 fst-italic">
+            Sign Up
+        </div>
+        <form action="/submit_user" method="POST">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" name="username"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password"/>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <button class="btn rounded-1 bg-dark text-white">Sign Up</button>
+            </div>
+        </form>
+    </div>
+</div>
+{{end}}
