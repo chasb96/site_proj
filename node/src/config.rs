@@ -6,11 +6,17 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct Config {
     pub database: DatabaseConfig,
+    pub authentication: AuthenticationConfig,
 }
 
 #[derive(Deserialize)]
 pub struct DatabaseConfig {
     pub connection_string: String,
+}
+
+#[derive(Deserialize)]
+pub struct AuthenticationConfig {
+    pub hmac_key: String,
 }
 
 #[derive(Debug)]

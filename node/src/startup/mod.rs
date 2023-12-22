@@ -1,7 +1,7 @@
 mod postgres;
 
 use std::{error::Error, fmt::Display};
-use crate::config::Config;
+use crate::{config::Config, auth};
 use self::postgres::PostgresStartupError;
 
 #[derive(Debug)]
@@ -28,5 +28,9 @@ impl From<PostgresStartupError> for StartupError {
 
 pub fn on_start(config: &Config) -> Result<(), StartupError> {
     postgres::postgres_start(config)
-        .map_err(Into::into)
+        .map_err(StartupError::from)?;
+
+    auth::on_start(&config.authentication);
+
+    Ok(())
 }
