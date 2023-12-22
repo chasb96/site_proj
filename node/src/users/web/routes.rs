@@ -1,5 +1,5 @@
 use axum::{Json, http::StatusCode};
-use crate::{util::or_status_code::{OrInternalServerError, OrNotFound}, auth::password::generate_password_hash, users::store::UserStore, axum::extractors::user_store::UserStoreExtractor};
+use crate::{util::or_status_code::{OrInternalServerError, OrNotFound}, auth::password::generate_password_hash, users::store::UserStore, axum::extractors::{user_store::UserStoreExtractor, session::SessionExtractor}};
 use super::{request::{CreateUserRequest, GetUserRequest, DeleteUserRequest}, response::{CreateUserResponse, GetUserResponse}};
 
 pub async fn create_user(
@@ -51,9 +51,14 @@ pub async fn get_user(
 }
 
 pub async fn delete_user(
+    session: SessionExtractor,
     user_store: UserStoreExtractor,
     Json(request): Json<DeleteUserRequest>
 ) -> Result<StatusCode, StatusCode> {
+    if session.user.id != request.id {
+        return Err(StatusCode::FORBIDDEN)
+    }
+
     user_store
         .delete(request.id)
         .await

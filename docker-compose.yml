@@ -14,19 +14,11 @@ services:
   postgres_db:
     image: postgres
     environment:
-      POSTGRES_USER_FILE: /run/secrets/db_user
-      POSTGRES_DB_FILE: /run/secrets/db_name
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pg_data:/var/lib/postgresql/data
 
 volumes:
   pg_data:
-
-secrets:
-  database_user:
-    file: db_user.txt
-  database_name:
-    file: db_name.txt
-  database_password:
-    file: db_password.txt

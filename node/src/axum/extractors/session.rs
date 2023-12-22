@@ -2,12 +2,12 @@ use axum::{async_trait, extract::FromRequestParts, http::{StatusCode, request::P
 use log::error;
 use crate::{users::{User, UserClaimError}, util::or_status_code::OrBadRequest, auth::jwt::verify_jwt};
 
-pub struct AuthenticatedUserExtractor {
+pub struct SessionExtractor {
     pub user: User,
 }
 
 #[async_trait]
-impl<T> FromRequestParts<T> for AuthenticatedUserExtractor {
+impl<T> FromRequestParts<T> for SessionExtractor {
     type Rejection = StatusCode;
 
     async fn from_request_parts<'a, 'b>(parts: &'a mut Parts, _: &'b T) ->  Result<Self,Self::Rejection> {
@@ -29,7 +29,7 @@ impl<T> FromRequestParts<T> for AuthenticatedUserExtractor {
                     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
                 Ok(
-                    AuthenticatedUserExtractor {
+                    SessionExtractor {
                         user
                     }
                 )

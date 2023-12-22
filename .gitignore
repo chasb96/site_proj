@@ -1,5 +1,2 @@
 .git
-
-db_user.txt
-db_name.txt
-db_password.txt
+.env
