@@ -3,7 +3,7 @@
 
 use config::Config;
 use log::error;
-use axum::serve;
+use ::axum::serve;
 use tokio::net::TcpListener;
 
 mod routes;
@@ -15,6 +15,7 @@ mod nodes;
 mod auth;
 mod util;
 mod startup;
+mod axum;
 
 #[tokio::main]
 async fn main() {

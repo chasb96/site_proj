@@ -1,8 +1,7 @@
 use axum::{http::StatusCode, Json};
-use crate::{auth::{jwt::generate_jwt, password::verify_password}, users::{web::UserStoreExtractor, store::UserStore}, util::or_status_code::OrInternalServerError};
+use crate::{auth::{jwt::generate_jwt, password::verify_password}, users::store::UserStore, util::or_status_code::{OrInternalServerError, OrBadRequest}, axum::extractors::user_store::UserStoreExtractor};
 use super::{request::LoginRequest, response::LoginResponse};
 
-#[axum::debug_handler]
 pub async fn authenticate(
     user_store: UserStoreExtractor,
     Json(request): Json<LoginRequest>
@@ -11,7 +10,7 @@ pub async fn authenticate(
         .get_by_username(&request.username)
         .await
         .or_internal_server_error()?
-        .ok_or(StatusCode::BAD_REQUEST)?;
+        .or_bad_request()?;
 
     let p_hash = user_store
         .get_password_hash(user.id)

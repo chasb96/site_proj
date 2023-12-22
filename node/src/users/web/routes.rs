@@ -1,6 +1,6 @@
 use axum::{Json, http::StatusCode};
-use crate::{util::or_status_code::{OrInternalServerError, OrNotFound}, auth::password::generate_password_hash, users::store::UserStore};
-use super::{request::{CreateUserRequest, GetUserRequest, DeleteUserRequest}, response::{CreateUserResponse, GetUserResponse}, UserStoreExtractor};
+use crate::{util::or_status_code::{OrInternalServerError, OrNotFound}, auth::password::generate_password_hash, users::store::UserStore, axum::extractors::user_store::UserStoreExtractor};
+use super::{request::{CreateUserRequest, GetUserRequest, DeleteUserRequest}, response::{CreateUserResponse, GetUserResponse}};
 
 pub async fn create_user(
     user_store: UserStoreExtractor, 

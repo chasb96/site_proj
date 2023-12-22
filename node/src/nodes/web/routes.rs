@@ -1,8 +1,8 @@
 use std::future::join;
 use axum::{Json, http::StatusCode};
 use url::Host;
-use crate::util::{or_status_code::{OrBadRequest, OrInternalServerError, OrNotFound}, invert::Invert};
-use super::{request::{CreateNodeRequest, GetNodeRequest}, response::{CreateNodeResponse, GetNodeResponse}, NodeStoreExtractor};
+use crate::{util::{or_status_code::{OrBadRequest, OrInternalServerError, OrNotFound}, invert::Invert}, axum::extractors::node_store::NodeStoreExtractor};
+use super::{request::{CreateNodeRequest, GetNodeRequest}, response::{CreateNodeResponse, GetNodeResponse}};
 use crate::nodes::store::NodeStore;
 
 pub async fn create_node(
