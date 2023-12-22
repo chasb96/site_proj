@@ -10,9 +10,14 @@
         <nav class="navbar bg-dark pb-0 pt-0">
             <a class="navbar-brand text-white fs-2 fst-italic text-decoration-none mx-2" href="/">3D2A</a>
             <div class="flex-1"></div>
-            <a href="/sign_up">
-                <button class="btn btn-success rounded-1 mx-2">Create Account</button>
-            </a>
+            <div>
+                <a href="/sign_up" class="btn btn-success rounded-1 me-1">
+                    Create Account
+                </a>
+                <a href="/login" class="btn btn-primary rounded-1 me-2">
+                    Login
+                </a>
+            </div>
         </nav>
 
         {{template "content" .}}

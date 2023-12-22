@@ -6,6 +6,7 @@ COPY go.mod ./
 RUN go mod download
 
 COPY *.go ./
+COPY ./services ./services
 COPY ./templates ./templates
 COPY ./assets ./assets
 
