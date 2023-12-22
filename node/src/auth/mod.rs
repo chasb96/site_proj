@@ -3,9 +3,7 @@ pub mod password;
 mod hmac;
 pub mod jwt;
 
-use ::jwt::Claims;
-
-use crate::{config::AuthenticationConfig, users::User};
+use crate::config::AuthenticationConfig;
 
 pub fn on_start(config: &AuthenticationConfig) {
     hmac::initialize_hmac_key(config)
