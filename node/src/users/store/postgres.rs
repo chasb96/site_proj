@@ -1,12 +1,13 @@
 use diesel::{deserialize::Queryable, Selectable, prelude::Insertable, SelectableHelper, RunQueryDsl, ExpressionMethods, QueryDsl, result::Error::NotFound};
 use crate::{data_store::postgres::{PostgresDataStore, users}, users::User};
-use super::{UserStore, error::{CreateUserError, GetUserError, DeleteUserError}};
+use super::{UserStore, error::{CreateUserError, GetUserError, DeleteUserError, GetPasswordError}};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::data_store::postgres::users)]
 struct UserModel {
     pub id: i32,
     pub username: String,
+    pub password_hash: String,
 }
 
 #[derive(Insertable)]
@@ -102,5 +103,25 @@ impl UserStore for PostgresDataStore {
         };
 
         Ok(delete_count == 1)
+    }
+
+    async fn get_password_hash(&self, id: i32) -> Result<Option<String>, GetPasswordError> {
+        let query_result = {
+            let mut conn = self.connection_pool
+                .get()?;
+
+            users::table
+                .filter(users::id.eq(id))
+                .select(UserModel::as_select())
+                .get_result(&mut conn)
+        };
+
+        let user_entity = match query_result {
+            Ok(user) => user,
+            Err(NotFound) => return Ok(None),
+            Err(e) => return Err(e.into()),
+        };
+
+        Ok(Some(user_entity.password_hash))
     }
 }

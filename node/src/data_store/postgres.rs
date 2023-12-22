@@ -48,7 +48,7 @@ impl Default for PostgresDataStore {
         Self { 
             connection_pool: CONNECTION_POOL
                 .get()
-                .expect("Application skipped startup process") 
+                .expect("Connection Pool used before initialization") 
         }
     }
 }

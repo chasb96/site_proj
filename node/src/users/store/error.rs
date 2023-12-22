@@ -86,3 +86,32 @@ impl From<r2d2::Error> for DeleteUserError {
         Self::Pool(value)
     }
 }
+
+#[derive(Debug)]
+pub enum GetPasswordError {
+    Diesel(diesel::result::Error),
+    Pool(r2d2::Error),
+}
+
+impl Error for GetPasswordError { }
+
+impl Display for GetPasswordError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Diesel(d) => d.fmt(f),
+            Self::Pool(r) => r.fmt(f)
+        }
+    }
+}
+
+impl From<diesel::result::Error> for GetPasswordError {
+    fn from(value: diesel::result::Error) -> Self {
+        Self::Diesel(value)
+    }
+}
+
+impl From<r2d2::Error> for GetPasswordError {
+    fn from(value: r2d2::Error) -> Self {
+        Self::Pool(value)
+    }
+}

@@ -1,12 +1,13 @@
 use std::{error::Error, fmt::Display};
 use jwt::Claims;
+use serde_json::Value;
 
 pub mod store;
 pub mod web;
 
 pub struct User {
-    id: i32,
-    username: String,
+    pub id: i32,
+    pub username: String,
 }
 
 #[derive(Debug)]
@@ -63,7 +64,7 @@ impl TryFrom<Claims> for User {
         }
 
         if id.is_none() { return  Err(UserClaimError::ClaimMissing("user_id".to_string())) }
-        if uname.is_none() { return  Err(UserClaimError::ClaimMissing("user_id".to_string())) }
+        if uname.is_none() { return  Err(UserClaimError::ClaimMissing("username".to_string())) }
 
         Ok(
             User {
@@ -71,5 +72,23 @@ impl TryFrom<Claims> for User {
                 username: uname.unwrap(),
             }
         )
+    }
+}
+
+impl Into<Claims> for User {
+    fn into(self) -> Claims {
+        let mut claims = Claims::default();
+
+        claims.private.insert(
+            "user_id".to_string(), 
+            Value::Number((self.id as i64).into())
+        );
+
+        claims.private.insert(
+            "username".to_string(), 
+            Value::String(self.username)
+        );
+
+        claims
     }
 }

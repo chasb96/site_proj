@@ -25,6 +25,10 @@ impl UserStore for UserStoreExtractor {
     async fn delete(&self, id: i32) -> Result<bool, super::store::error::DeleteUserError> {
         self.0.delete(id).await
     }
+
+    async fn get_password_hash(&self, id: i32) -> Result<Option<String>, super::store::error::GetPasswordError> {
+        self.0.get_password_hash(id).await
+    }
 }
 
 impl Default for UserStoreExtractor {

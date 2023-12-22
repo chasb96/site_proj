@@ -1,4 +1,4 @@
-use self::error::{CreateUserError, GetUserError, DeleteUserError};
+use self::error::{CreateUserError, GetUserError, DeleteUserError, GetPasswordError};
 use super::User;
 
 mod postgres;
@@ -12,4 +12,6 @@ pub trait UserStore {
     async fn get_by_username<'a>(&self, username: &'a str) -> Result<Option<User>, GetUserError>;
 
     async fn delete(&self, id: i32) -> Result<bool, DeleteUserError>;
+
+    async fn get_password_hash(&self, id: i32) -> Result<Option<String>, GetPasswordError>;
 }
