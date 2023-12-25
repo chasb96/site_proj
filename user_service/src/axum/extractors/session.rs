@@ -1,9 +1,9 @@
 use axum::{async_trait, extract::FromRequestParts, http::{StatusCode, request::Parts}};
 use log::error;
-use crate::{users::{User, UserClaimError}, util::or_status_code::OrBadRequest, auth::jwt::verify_jwt};
+use crate::{util::or_status_code::OrBadRequest, auth::{jwt::verify_jwt, claims_user::{ClaimsUser, UserClaimError}}};
 
 pub struct SessionExtractor {
-    pub user: User,
+    pub user: ClaimsUser,
 }
 
 #[async_trait]
@@ -24,7 +24,7 @@ impl<T> FromRequestParts<T> for SessionExtractor {
 
         match (auth_type.to_uppercase().as_str(), value.to_string()) {
             ("BEARER", value) => {
-                let user = verify_jwt::<User, UserClaimError>(value)
+                let user = verify_jwt::<ClaimsUser, UserClaimError>(value)
                     .inspect_err(|e| error!("{:?}", e))
                     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 

@@ -2,6 +2,7 @@ pub mod web;
 pub mod password;
 mod hmac;
 pub mod jwt;
+pub mod claims_user;
 
 use crate::config::AuthenticationConfig;
 

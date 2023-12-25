@@ -8,6 +8,7 @@ struct UserModel {
     pub id: i32,
     pub username: String,
     pub password_hash: String,
+    pub admin: bool,
 }
 
 #[derive(Insertable)]
@@ -37,6 +38,7 @@ impl UserStore for PostgresDataStore {
         let user = User {
             id: user_entity.id,
             username: user_entity.username,
+            admin: user_entity.admin,
         };
 
         Ok(user)
@@ -61,7 +63,8 @@ impl UserStore for PostgresDataStore {
 
         let user = User {
             id: user_entity.id,
-            username: user_entity.username
+            username: user_entity.username,
+            admin: user_entity.admin,
         };
 
         Ok(Some(user))
@@ -86,7 +89,8 @@ impl UserStore for PostgresDataStore {
 
         let user = User {
             id: user_entity.id,
-            username: user_entity.username
+            username: user_entity.username,
+            admin: user_entity.admin,
         };
 
         Ok(Some(user))

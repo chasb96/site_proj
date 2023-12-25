@@ -1,5 +1,5 @@
 use axum::{http::StatusCode, Json};
-use crate::{auth::{jwt::generate_jwt, password::verify_password}, users::store::UserStore, util::or_status_code::{OrInternalServerError, OrBadRequest}, axum::extractors::user_store::UserStoreExtractor};
+use crate::{auth::{jwt::generate_jwt, password::verify_password, claims_user::ClaimsUser}, users::store::UserStore, util::or_status_code::{OrInternalServerError, OrBadRequest}, axum::extractors::user_store::UserStoreExtractor};
 use super::{request::LoginRequest, response::LoginResponse};
 
 pub async fn authenticate(
@@ -22,7 +22,7 @@ pub async fn authenticate(
         return Err(StatusCode::UNAUTHORIZED)
     }
 
-    generate_jwt(user)
+    generate_jwt(ClaimsUser::from(user))
         .or_internal_server_error()
         .map(|token| Json(
             LoginResponse {

@@ -73,3 +73,32 @@ impl From<url::ParseError> for GetNodeError {
         Self::Parse(value)
     }
 }
+
+#[derive(Debug)]
+pub enum DeleteNodeError {
+    Diesel(diesel::result::Error),
+    Pool(r2d2::Error),
+}
+
+impl Error for DeleteNodeError { }
+
+impl Display for DeleteNodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Diesel(d) => d.fmt(f),
+            Self::Pool(r) => r.fmt(f),
+        }
+    }
+}
+
+impl From<diesel::result::Error> for DeleteNodeError {
+    fn from(value: diesel::result::Error) -> Self {
+        Self::Diesel(value)
+    }
+}
+
+impl From<r2d2::Error> for DeleteNodeError {
+    fn from(value: r2d2::Error) -> Self {
+        Self::Pool(value)
+    }
+}

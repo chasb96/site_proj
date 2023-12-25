@@ -1,14 +1,12 @@
 mod postgres;
-mod files;
 
 use std::{error::Error, fmt::Display};
-use crate::config::Config;
-use self::{postgres::PostgresStartupError, files::FileDataStoreStartupError};
+use crate::{config::Config, auth};
+use self::postgres::PostgresStartupError;
 
 #[derive(Debug)]
 pub enum StartupError {
-    Postgres(PostgresStartupError),
-    Files(FileDataStoreStartupError),
+    Postgres(PostgresStartupError)
 }
 
 impl Error for StartupError { }
@@ -17,7 +15,6 @@ impl Display for StartupError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             StartupError::Postgres(e) => e.fmt(f),
-            StartupError::Files(e) => e.fmt(f),
         }
     }
 }
@@ -28,18 +25,12 @@ impl From<PostgresStartupError> for StartupError {
     }
 }
 
-impl From<FileDataStoreStartupError> for StartupError {
-    fn from(value: FileDataStoreStartupError) -> Self {
-        Self::Files(value)
-    }
-}
 
 pub fn on_start(config: &Config) -> Result<(), StartupError> {
     postgres::postgres_start(config)
         .map_err(StartupError::from)?;
 
-    files::file_store_start(config)
-        .map_err(StartupError::from)?;
+    auth::on_start(&config.authentication);
 
     Ok(())
 }

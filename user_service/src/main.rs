@@ -6,15 +6,15 @@ use log::error;
 use ::axum::serve;
 use tokio::net::TcpListener;
 
+mod users;
 mod routes;
-mod health;
-mod config;
-mod data_store;
-mod nodes;
-mod util;
 mod startup;
+mod health;
+mod auth;
+mod data_store;
+mod util;
+mod config;
 mod axum;
-mod files;
 
 #[tokio::main]
 async fn main() {

@@ -33,7 +33,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{
 		Name:    "auth_token",
 		Value:   response.Jwt,
-		Expires: time.Now().Add(365 * 24 * time.Hour),
+		Expires: time.Now().Add(24 * time.Hour),
 	}
 
 	http.SetCookie(w, &cookie)

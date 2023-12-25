@@ -2,10 +2,9 @@ use std::{error::Error, fmt::Display};
 use jwt::Claims;
 use serde_json::Value;
 
-pub mod store;
-pub mod web;
+use crate::users::User;
 
-pub struct User {
+pub struct ClaimsUser {
     pub id: i32,
     pub username: String,
 }
@@ -27,11 +26,11 @@ impl Display for UserClaimError {
     }
 }
 
-impl TryFrom<Claims> for User {
+impl TryFrom<Claims> for ClaimsUser {
     type Error = UserClaimError;
 
     fn try_from(claims: Claims) -> Result<Self, Self::Error> {
-        let mut id = None;
+        let mut user_id = None;
         let mut uname = None;
 
         for (key, value) in claims.private {
@@ -41,7 +40,7 @@ impl TryFrom<Claims> for User {
                         return Err(UserClaimError::InvalidFormat("user_id".to_string()))
                     }
 
-                    id = Some(
+                    user_id = Some(
                         value
                             .as_i64()
                             .unwrap() as i32
@@ -63,19 +62,19 @@ impl TryFrom<Claims> for User {
             }
         }
 
-        if id.is_none() { return  Err(UserClaimError::ClaimMissing("user_id".to_string())) }
+        if user_id.is_none() { return  Err(UserClaimError::ClaimMissing("user_id".to_string())) }
         if uname.is_none() { return  Err(UserClaimError::ClaimMissing("username".to_string())) }
 
         Ok(
-            User {
-                id: id.unwrap(),
+            ClaimsUser {
+                id: user_id.unwrap(),
                 username: uname.unwrap(),
             }
         )
     }
 }
 
-impl Into<Claims> for User {
+impl Into<Claims> for ClaimsUser {
     fn into(self) -> Claims {
         let mut claims = Claims::default();
 
@@ -90,5 +89,14 @@ impl Into<Claims> for User {
         );
 
         claims
+    }
+}
+
+impl From<User> for ClaimsUser {
+    fn from(user: User) -> Self {
+        ClaimsUser {
+            id: user.id,
+            username: user.username,
+        }
     }
 }

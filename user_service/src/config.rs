@@ -7,7 +7,6 @@ use serde::Deserialize;
 pub struct Config {
     pub database: DatabaseConfig,
     pub authentication: AuthenticationConfig,
-    pub file_store: FileStoreConfig,
 }
 
 #[derive(Deserialize)]
@@ -18,11 +17,6 @@ pub struct DatabaseConfig {
 #[derive(Deserialize)]
 pub struct AuthenticationConfig {
     pub hmac_key: String,
-}
-
-#[derive(Deserialize)]
-pub struct FileStoreConfig {
-    pub path: String,
 }
 
 #[derive(Debug)]

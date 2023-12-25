@@ -39,11 +39,11 @@ pub fn initialize_connection_pool(config: &DatabaseConfig) -> Result<(), Initial
         .map_err(Into::into)
 }
 
-pub struct PostgresDatabase {
+pub struct PostgresDataStore {
     pub connection_pool: &'static Pool<ConnectionManager<PgConnection>>,
 }
 
-impl Default for PostgresDatabase {
+impl Default for PostgresDataStore {
     fn default() -> Self {
         Self { 
             connection_pool: CONNECTION_POOL
@@ -54,18 +54,10 @@ impl Default for PostgresDatabase {
 }
 
 diesel::table! {
-    nodes (id) {
+    users (id) {
         id -> Serial,
-        name -> VarChar,
-        host -> VarChar,
-        port -> Integer,
-    }
-}
-
-diesel::table! {
-    files (id) {
-        id -> Serial,
-        name -> VarChar,
-        path -> VarChar,
+        username -> VarChar,
+        password_hash -> VarChar,
+        admin -> Bool,
     }
 }

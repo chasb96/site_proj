@@ -14,3 +14,8 @@ pub struct GetNodeRequest {
     pub host: Option<String>,
     pub port: Option<u16>,
 }
+
+#[derive(Deserialize)]
+pub struct DeleteNodeRequest {
+    pub id: i32
+}

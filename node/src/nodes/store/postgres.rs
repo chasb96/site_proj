@@ -1,7 +1,7 @@
 use diesel::{deserialize::Queryable, Selectable, prelude::Insertable, SelectableHelper, RunQueryDsl, ExpressionMethods, QueryDsl, result::Error::NotFound};
 use url::Host;
-use crate::{data_store::postgres::{PostgresDataStore, nodes}, nodes::Node};
-use super::{NodeStore, error::GetNodeError};
+use crate::{data_store::postgres::{PostgresDatabase, nodes}, nodes::Node};
+use super::{NodeStore, error::{GetNodeError, DeleteNodeError}};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::data_store::postgres::nodes)]
@@ -20,7 +20,7 @@ struct NewNodeModel {
     pub port: i32,
 }
 
-impl NodeStore for PostgresDataStore {
+impl NodeStore for PostgresDatabase {
     async fn create(&self, name: String, host: url::Host, port: u16) -> Result<crate::nodes::Node, super::error::CreateNodeError> {
         let node_entity = {
             let mut conn = self.connection_pool
@@ -128,5 +128,18 @@ impl NodeStore for PostgresDataStore {
         };
 
         Ok(Some(node))
+    }
+
+    async fn delete(&self, id: i32) -> Result<bool, DeleteNodeError> {
+        let delete_count = {
+            let mut conn = self.connection_pool
+                .get()?;
+
+            diesel::delete(nodes::table)
+                .filter(nodes::id.eq(id))
+                .execute(&mut conn)?
+        };
+
+        Ok(delete_count == 1)
     }
 }

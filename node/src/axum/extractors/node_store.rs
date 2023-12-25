@@ -1,8 +1,8 @@
 use axum::{extract::FromRequestParts, http::{StatusCode, request::Parts}, async_trait};
 use url::Host;
-use crate::{data_store::postgres::PostgresDataStore, nodes::{Node, store::{error::{CreateNodeError, GetNodeError}, NodeStore}}};
+use crate::{data_store::postgres::PostgresDatabase, nodes::{Node, store::{error::{CreateNodeError, GetNodeError, DeleteNodeError}, NodeStore}}};
 
-pub struct NodeStoreExtractor(PostgresDataStore);
+pub struct NodeStoreExtractor(PostgresDatabase);
 
 impl NodeStore for NodeStoreExtractor {
     async fn create(&self, name: String, host: Host, port: u16) -> Result<Node, CreateNodeError> {
@@ -20,11 +20,15 @@ impl NodeStore for NodeStoreExtractor {
     async fn get_by_address<'a>(&self, host: &'a Host, port: u16) -> Result<Option<Node>, GetNodeError> {
         self.0.get_by_address(host, port).await
     }
+
+    async fn delete(&self, id: i32) -> Result<bool, DeleteNodeError> {
+        self.0.delete(id).await
+    }
 }
 
 impl Default for NodeStoreExtractor {
     fn default() -> Self {
-        NodeStoreExtractor(PostgresDataStore::default())
+        NodeStoreExtractor(PostgresDatabase::default())
     }
 }
 
