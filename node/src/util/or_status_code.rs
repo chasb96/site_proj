@@ -44,6 +44,17 @@ where
     }
 }
 
+impl<T> OrInternalServerError for Option<T>
+where
+    Option<T>: OrStatusCode,
+{
+    type Result = <Self as OrStatusCode>::Result;
+
+    fn or_internal_server_error(self) -> Self::Result {
+        self.or_status_code(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
 pub trait OrNotFound {
     type Result;
 

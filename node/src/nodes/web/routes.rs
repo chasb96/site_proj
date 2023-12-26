@@ -29,9 +29,9 @@ pub async fn create_node(
         .create(request.name, parsed_host, request.port)
         .await
         .or_internal_server_error()
-        .map(|node| Json(
+        .map(|id| Json(
             CreateNodeResponse {
-                id: node.id,
+                id: id,
             }
         ))
 }

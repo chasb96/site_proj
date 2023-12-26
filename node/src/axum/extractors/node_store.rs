@@ -5,7 +5,7 @@ use crate::{data_store::postgres::PostgresDatabase, nodes::{Node, store::{error:
 pub struct NodeStoreExtractor(PostgresDatabase);
 
 impl NodeStore for NodeStoreExtractor {
-    async fn create(&self, name: String, host: Host, port: u16) -> Result<Node, CreateNodeError> {
+    async fn create(&self, name: String, host: Host, port: u16) -> Result<i32, CreateNodeError> {
         self.0.create(name, host, port).await
     }
 

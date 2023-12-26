@@ -1,4 +1,5 @@
-use super::{FileDataStore, FileStoreMeta, FileStoreBytes};
+use crate::files::{FileMetadata, NewFileMetadata};
+use super::{FileDataStore, FileStoreMeta, FileStoreBytes, error::CreateFileError};
 
 pub struct Paired<T, S> {
     meta: T,
@@ -10,10 +11,18 @@ where
     T: FileStoreMeta,
     S: FileStoreBytes
 {
-    async fn create<'a>(&self, name: &'a str, data: bytes::Bytes) -> Result<crate::files::File, super::error::CreateFileError> {
-        self.bytes.create(name, data).await?;
+    async fn create<'a>(&self, file: &'a NewFileMetadata, data: bytes::Bytes) -> Result<i32, CreateFileError> {
+        self.bytes.create(&file.internal_name, data).await?;
 
-        self.meta.create(name).await
+        self.meta.create(file).await
+    }
+
+    async fn get_metadata_by_id(&self, id: i32) -> Result<Option<FileMetadata>, super::error::GetFileError> {
+        self.meta.get_by_id(id).await
+    }
+
+    async fn get_bytes_by_id(&self, id: i32) -> Result<Option<bytes::Bytes>, super::error::GetFileError> {
+        self.bytes.get_by_id(id).await
     }
 }
 

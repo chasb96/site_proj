@@ -1,24 +1,38 @@
 use std::{error::Error, fmt::Display, sync::OnceLock};
-use diesel::{PgConnection, r2d2::ConnectionManager};
-use r2d2::Pool;
+use deadpool::managed::{Pool, BuildError};
+
 use crate::config::DatabaseConfig;
 
-static CONNECTION_POOL: OnceLock<Pool<ConnectionManager<PgConnection>>> = OnceLock::new();
+use super::deadpool::ConnectionManager;
+
+static CONNECTION_POOL: OnceLock<Pool<ConnectionManager>> = OnceLock::new();
 
 #[derive(Debug)]
-pub struct InitializeConnectionPoolError(r2d2::Error);
+pub enum InitializeConnectionPoolError {
+    Sqlx(sqlx::Error),
+    Deadpool(BuildError),
+}
 
 impl Error for InitializeConnectionPoolError { }
 
 impl Display for InitializeConnectionPoolError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
+        match self {
+            InitializeConnectionPoolError::Sqlx(e) => e.fmt(f),
+            InitializeConnectionPoolError::Deadpool(e) => e.fmt(f),
+        }
     }
 }
 
-impl From<r2d2::Error> for InitializeConnectionPoolError {
-    fn from(value: r2d2::Error) -> Self {
-        Self(value)
+impl From<sqlx::Error> for InitializeConnectionPoolError {
+    fn from(value: sqlx::Error) -> Self {
+        Self::Sqlx(value)
+    }
+}
+
+impl From<BuildError> for InitializeConnectionPoolError {
+    fn from(value: BuildError) -> Self {
+        Self::Deadpool(value)
     }
 }
 
@@ -29,18 +43,18 @@ pub fn initialize_connection_pool(config: &DatabaseConfig) -> Result<(), Initial
                 .connection_string
                 .to_string();
 
-            let manager: ConnectionManager<PgConnection> = 
-                ConnectionManager::new(connection_string);
+            let manager = ConnectionManager {
+                connection_string,
+            };
 
-            Pool::builder()
-                .build(manager)
+            Pool::builder(manager).build()
         })
         .map(|_| ())
         .map_err(Into::into)
 }
 
 pub struct PostgresDatabase {
-    pub connection_pool: &'static Pool<ConnectionManager<PgConnection>>,
+    pub connection_pool: &'static Pool<ConnectionManager>,
 }
 
 impl Default for PostgresDatabase {
@@ -50,22 +64,5 @@ impl Default for PostgresDatabase {
                 .get()
                 .expect("Connection Pool used before initialization") 
         }
-    }
-}
-
-diesel::table! {
-    nodes (id) {
-        id -> Serial,
-        name -> VarChar,
-        host -> VarChar,
-        port -> Integer,
-    }
-}
-
-diesel::table! {
-    files (id) {
-        id -> Serial,
-        name -> VarChar,
-        path -> VarChar,
     }
 }
