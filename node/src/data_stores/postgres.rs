@@ -53,6 +53,49 @@ pub fn initialize_connection_pool(config: &DatabaseConfig) -> Result<(), Initial
         .map_err(Into::into)
 }
 
+#[derive(Debug)]
+pub enum MigrateError {
+    Sqlx(sqlx::migrate::MigrateError),
+    Deadpool(deadpool::managed::PoolError<sqlx::error::Error>)
+}
+
+impl Error for MigrateError { }
+
+impl Display for MigrateError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MigrateError::Sqlx(e) => write!(f, "MigrateError::Sqlx({})", e),
+            MigrateError::Deadpool(e) => write!(f, "MigrateError::Deadpool({})", e),
+        }
+    }
+}
+
+impl From<sqlx::migrate::MigrateError> for MigrateError {
+    fn from(value: sqlx::migrate::MigrateError) -> Self {
+        Self::Sqlx(value)
+    }
+}
+
+impl From<deadpool::managed::PoolError<sqlx::error::Error>> for MigrateError {
+    fn from(value: deadpool::managed::PoolError<sqlx::error::Error>) -> Self {
+        Self::Deadpool(value)
+    }
+}
+
+pub async fn migrate() -> Result<(), MigrateError> {
+    let mut conn = CONNECTION_POOL
+        .get()
+        .expect("Connection Pool used before initialization") 
+        .get()
+        .await?;
+
+    sqlx::migrate!("./migrations")
+        .run(conn.as_mut())
+        .await?;
+
+    Ok(())
+}
+
 pub struct PostgresDatabase {
     pub connection_pool: &'static Pool<ConnectionManager>,
 }

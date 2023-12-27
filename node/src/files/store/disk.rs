@@ -1,11 +1,12 @@
-use std::{fs::File, io::{Write, ErrorKind}, io::Read};
+use std::{fs::{File, self}, io::{Write, ErrorKind}, io::Read};
 use bytes::Bytes;
 use crate::data_stores::files::DiskDataStore;
 use super::{FileStoreBytes, error::GetFileError};
 
 impl FileStoreBytes for DiskDataStore {
     async fn create<'a>(&self, id: &'a str, data: bytes::Bytes) -> Result<(), super::error::CreateFileError> {
-        File::create(format!("{}/{}/0", self.directory, id))
+        fs::create_dir(format!("{}/{}", self.directory, id))
+            .and_then(|_| File::create(format!("{}/{}/0", self.directory, id)))
             .and_then(|mut file| file.write_all(&data))
             .map_err(Into::into)
     }

@@ -34,12 +34,10 @@ impl From<FileDataStoreStartupError> for StartupError {
     }
 }
 
-pub fn on_start(config: &Config) -> Result<(), StartupError> {
-    postgres::postgres_start(config)
-        .map_err(StartupError::from)?;
+pub async fn on_start(config: &Config) -> Result<(), StartupError> {
+    postgres::postgres_start(config).await?;
 
-    files::file_store_start(config)
-        .map_err(StartupError::from)?;
+    files::file_store_start(config)?;
 
     Ok(())
 }

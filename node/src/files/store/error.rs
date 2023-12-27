@@ -16,7 +16,7 @@ impl Display for CreateFileError {
         match self {
             CreateFileError::Sqlx(e) => e.fmt(f),
             CreateFileError::Pool(e) => e.fmt(f),
-            CreateFileError::FileSystem(e) => e.fmt(f)
+            CreateFileError::FileSystem(e) => write!(f, "CreateFileError::FileSystem({})", e)
         }
     }
 }

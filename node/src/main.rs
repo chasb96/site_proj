@@ -24,6 +24,7 @@ async fn main() {
         .unwrap();
 
     startup::on_start(&config)
+        .await
         .inspect_err(|e| error!("{:?}", e))
         .unwrap();
 
