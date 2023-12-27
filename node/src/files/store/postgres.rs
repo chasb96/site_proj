@@ -1,5 +1,5 @@
 use sqlx::{postgres::PgRow, Row};
-use crate::{data_store::postgres::PostgresDatabase, files::{FileMetadata, NewFileMetadata}};
+use crate::{data_stores::postgres::PostgresDatabase, files::file::{NewFileMetadata, FileMetadata}};
 use super::{FileStoreMeta, error::{CreateFileError, GetFileError}};
 
 impl FileStoreMeta for PostgresDatabase {
@@ -38,13 +38,7 @@ impl FileStoreMeta for PostgresDatabase {
 
         sqlx::query(GET_BY_ID_QUERY)
             .bind(id)
-            .map(|row: PgRow| FileMetadata {
-                id: row.get("id"),
-                name: row.get("name"),
-                content_type: row.get("content_type"),
-                extension: row.get("extension"),
-                internal_name: row.get("internal_name"),
-            })
+            .map(FileMetadata::from)
             .fetch_optional(conn.as_mut())
             .await
             .map_err(Into::into)

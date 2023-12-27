@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use self::error::{CreateFileError, GetFileError};
-use super::{FileMetadata, NewFileMetadata};
+
+use super::file::{NewFileMetadata, FileMetadata};
 
 pub mod error;
 pub mod paired;

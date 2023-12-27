@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use deadpool::managed::{Manager, RecycleResult, Metrics, RecycleError};
+use deadpool::managed::{Manager, RecycleResult, Metrics};
 use sqlx::{PgConnection, Error, Connection};
 
 pub struct ConnectionManager {
@@ -16,6 +16,6 @@ impl Manager for ConnectionManager {
     }
     
     async fn recycle(&self, _: &mut PgConnection, _: &Metrics) -> RecycleResult<Self::Error> {
-        Err(RecycleError::StaticMessage("Cannot recycle connection, no safe interface to do so"))
+        Ok(())
     }
 }

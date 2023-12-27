@@ -1,7 +1,7 @@
 use std::path::Path;
 use axum::{Json, http::{StatusCode, Response, header::{CONTENT_TYPE, CONTENT_DISPOSITION}}, extract::Multipart, body::Body};
 use rand::{distributions::Alphanumeric, Rng};
-use crate::{axum::extractors::file_data_store::FileDataStoreExtractor, files::{store::FileDataStore, NewFileMetadata}, util::{or_status_code::{OrInternalServerError, OrBadRequest, OrNotFound}, invert::Invert}};
+use crate::{util::{or_status_code::{OrInternalServerError, OrBadRequest, OrNotFound}, invert::Invert}, files::{axum::FileDataStoreExtractor, file::NewFileMetadata, store::FileDataStore}};
 use super::{response::CreateFileResponse, request::GetFileRequest};
 
 #[axum::debug_handler]

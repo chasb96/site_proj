@@ -1,12 +1,13 @@
 use std::{error::Error, fmt::Display};
 use deadpool::managed::PoolError;
 use sqlx::Error as SqlxError;
+use crate::nodes::node::ParsePgNodeError;
 
 #[derive(Debug)]
 pub enum CreateNodeError {
     Sqlx(SqlxError),
     Pool(PoolError<SqlxError>),
-    Parse(url::ParseError),
+    Parse(ParsePgNodeError),
 }
 
 impl Error for CreateNodeError { }
@@ -33,8 +34,8 @@ impl From<PoolError<SqlxError>> for CreateNodeError {
     }
 }
 
-impl From<url::ParseError> for CreateNodeError {
-    fn from(value: url::ParseError) -> Self {
+impl From<ParsePgNodeError> for CreateNodeError {
+    fn from(value: ParsePgNodeError) -> Self {
         Self::Parse(value)
     }
 }
@@ -43,7 +44,7 @@ impl From<url::ParseError> for CreateNodeError {
 pub enum GetNodeError {
     Sqlx(SqlxError),
     Pool(PoolError<SqlxError>),
-    Parse(url::ParseError),
+    Parse(ParsePgNodeError),
 }
 
 impl Error for GetNodeError { }
@@ -70,8 +71,8 @@ impl From<PoolError<SqlxError>> for GetNodeError {
     }
 }
 
-impl From<url::ParseError> for GetNodeError {
-    fn from(value: url::ParseError) -> Self {
+impl From<ParsePgNodeError> for GetNodeError {
+    fn from(value: ParsePgNodeError) -> Self {
         Self::Parse(value)
     }
 }

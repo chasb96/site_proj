@@ -1,6 +1,6 @@
 use sqlx::{postgres::PgRow, Row};
 use url::Host;
-use crate::{data_store::postgres::PostgresDatabase, nodes::Node};
+use crate::{data_stores::postgres::PostgresDatabase, util::invert::Invert, nodes::node::Node};
 use super::{NodeStore, error::{GetNodeError, DeleteNodeError, CreateNodeError}};
 
 impl NodeStore for PostgresDatabase {
@@ -36,27 +36,13 @@ impl NodeStore for PostgresDatabase {
             .get()
             .await?;
 
-        let row = sqlx::query(GET_BY_ID_QUERY)
+        sqlx::query(GET_BY_ID_QUERY)
             .bind(id)
+            .map(Node::try_from)
             .fetch_optional(conn.as_mut())
-            .await?;
-
-        let row = match row {
-            Some(row) => row,
-            None => return Ok(None),
-        };
-
-        let host_str: &str = row.get("host");
-        let port_str: &str = row.get("port");
-
-        let node = Node {
-            id: row.get("id"),
-            name: row.get("name"),
-            host: Host::parse(host_str)?,
-            port: port_str.parse().unwrap(),
-        };
-
-        Ok(Some(node))
+            .await?
+            .invert()
+            .map_err(Into::into)
     }
 
     async fn get_by_name<'a>(&self, name: &'a str) -> Result<Option<Node>, GetNodeError> {
@@ -70,27 +56,13 @@ impl NodeStore for PostgresDatabase {
             .get()
             .await?;
 
-        let row = sqlx::query(GET_BY_NAME_QUERY)
+        sqlx::query(GET_BY_NAME_QUERY)
             .bind(name)
+            .map(Node::try_from)
             .fetch_optional(conn.as_mut())
-            .await?;
-
-        let row = match row {
-            Some(row) => row,
-            None => return Ok(None),
-        };
-
-        let host_str: &str = row.get("host");
-        let port_str: &str = row.get("port");
-
-        let node = Node {
-            id: row.get("id"),
-            name: row.get("name"),
-            host: Host::parse(host_str)?,
-            port: port_str.parse().unwrap(),
-        };
-
-        Ok(Some(node))
+            .await?
+            .invert()
+            .map_err(Into::into)
     }
 
     async fn get_by_address<'a>(&self, host: &'a Host, port: u16) -> Result<Option<Node>, GetNodeError> {
@@ -104,28 +76,14 @@ impl NodeStore for PostgresDatabase {
             .get()
             .await?;
 
-        let row = sqlx::query(GET_BY_ADDRESS_QUERY)
+        sqlx::query(GET_BY_ADDRESS_QUERY)
             .bind(host.to_string())
             .bind(port.to_string())
+            .map(Node::try_from)
             .fetch_optional(conn.as_mut())
-            .await?;
-
-        let row = match row {
-            Some(row) => row,
-            None => return Ok(None),
-        };
-
-        let host_str: &str = row.get("host");
-        let port_str: &str = row.get("port");
-
-        let node = Node {
-            id: row.get("id"),
-            name: row.get("name"),
-            host: Host::parse(host_str)?,
-            port: port_str.parse().unwrap(),
-        };
-
-        Ok(Some(node))
+            .await?
+            .invert()
+            .map_err(Into::into)
     }
 
     async fn delete(&self, id: i32) -> Result<bool, DeleteNodeError> {
@@ -146,12 +104,11 @@ impl NodeStore for PostgresDatabase {
             .get()
             .await?;
 
-        let delete_count: i32 = sqlx::query(DELETE_BY_ID)
+        sqlx::query(DELETE_BY_ID)
             .bind(id)
-            .map(|row: PgRow| row.get("delete_count"))
+            .map(|row: PgRow| row.get::<i32, &str>("delete_count") == 1)
             .fetch_one(conn.as_mut())
-            .await?;
-
-        Ok(delete_count == 1)
+            .await
+            .map_err(Into::into)
     }
 }

@@ -1,9 +1,6 @@
 use std::{fs::File, io::{Write, ErrorKind}, io::Read};
-
 use bytes::Bytes;
-
-use crate::data_store::files::DiskDataStore;
-
+use crate::data_stores::files::DiskDataStore;
 use super::{FileStoreBytes, error::GetFileError};
 
 impl FileStoreBytes for DiskDataStore {

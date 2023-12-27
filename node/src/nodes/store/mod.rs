@@ -1,6 +1,6 @@
 use url::Host;
 use self::error::{CreateNodeError, GetNodeError, DeleteNodeError};
-use super::Node;
+use super::node::Node;
 
 pub mod error;
 mod postgres;

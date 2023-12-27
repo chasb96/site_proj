@@ -1,6 +1,7 @@
 use axum::{extract::FromRequestParts, http::{StatusCode, request::Parts}, async_trait};
 use url::Host;
-use crate::{data_store::postgres::PostgresDatabase, nodes::{Node, store::{error::{CreateNodeError, GetNodeError, DeleteNodeError}, NodeStore}}};
+use crate::{data_stores::postgres::PostgresDatabase, nodes::store::{error::{CreateNodeError, GetNodeError, DeleteNodeError}, NodeStore}};
+use super::node::Node;
 
 pub struct NodeStoreExtractor(PostgresDatabase);
 

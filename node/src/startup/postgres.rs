@@ -1,5 +1,5 @@
 use std::{error::Error, fmt::Display};
-use crate::{data_store::postgres::{initialize_connection_pool, InitializeConnectionPoolError}, config::Config};
+use crate::{data_stores::postgres::{initialize_connection_pool, InitializeConnectionPoolError}, config::Config};
 
 #[derive(Debug)]
 pub enum PostgresStartupError {

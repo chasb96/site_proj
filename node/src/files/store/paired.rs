@@ -1,4 +1,4 @@
-use crate::files::{FileMetadata, NewFileMetadata};
+use crate::files::file::{NewFileMetadata, FileMetadata};
 use super::{FileDataStore, FileStoreMeta, FileStoreBytes, error::CreateFileError};
 
 pub struct Paired<T, S> {

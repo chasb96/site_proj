@@ -1,5 +1,5 @@
 use std::{error::Error, fmt::Display};
-use crate::{data_store::files::{InitializeFileStoreError, initialize_file_store}, config::Config};
+use crate::{data_stores::files::{InitializeFileStoreError, initialize_file_store}, config::Config};
 
 #[derive(Debug)]
 pub enum FileDataStoreStartupError {

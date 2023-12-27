@@ -9,11 +9,10 @@ use tokio::net::TcpListener;
 mod routes;
 mod health;
 mod config;
-mod data_store;
+mod data_stores;
 mod nodes;
 mod util;
 mod startup;
-mod axum;
 mod files;
 
 #[tokio::main]

@@ -1,6 +1,7 @@
 use axum::{async_trait, extract::FromRequestParts, http::{StatusCode, request::Parts}};
 use bytes::Bytes;
-use crate::{data_store::{files::DiskDataStore, postgres::PostgresDatabase}, files::{store::{paired::Paired, FileDataStore, error::{CreateFileError, GetFileError}}, FileMetadata, NewFileMetadata}};
+use crate::{data_stores::{files::DiskDataStore, postgres::PostgresDatabase}, files::store::{paired::Paired, FileDataStore, error::{CreateFileError, GetFileError}}};
+use super::file::{NewFileMetadata, FileMetadata};
 
 pub struct FileDataStoreExtractor(Paired<PostgresDatabase, DiskDataStore>);
 
