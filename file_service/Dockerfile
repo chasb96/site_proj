@@ -3,8 +3,8 @@ WORKDIR /src
 
 RUN rustup override set nightly
 
-RUN USER=root cargo new --bin node
-WORKDIR /src/node
+RUN USER=root cargo new --bin file_service
+WORKDIR /src/file_service
 
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
@@ -15,7 +15,7 @@ RUN rm src/*.rs
 COPY ./src ./src
 COPY ./migrations ./migrations
 
-RUN rm ./target/release/deps/node*
+RUN rm ./target/release/deps/file_service*
 RUN cargo build --release
 
 WORKDIR /src
@@ -29,7 +29,7 @@ HEALTHCHECK CMD curl --fail http://localhost/health || exit 1
 
 WORKDIR /src
 
-COPY --from=build /src/node/target/release/node ./node
+COPY --from=build /src/file_service/target/release/file_service ./file_service
 COPY ./config.yaml ./config.yaml
 
-CMD ["./node"]
+CMD ["./file_service"]
