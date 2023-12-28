@@ -2,7 +2,7 @@ mod postgres;
 mod files;
 
 use std::{error::Error, fmt::Display};
-use crate::config::Config;
+use crate::{config::Config, auth};
 use self::{postgres::PostgresStartupError, files::FileDataStoreStartupError};
 
 #[derive(Debug)]
@@ -38,6 +38,8 @@ pub async fn on_start(config: &Config) -> Result<(), StartupError> {
     postgres::postgres_start(config).await?;
 
     files::file_store_start(config)?;
+
+    auth::initialize(&config.authentication);
 
     Ok(())
 }

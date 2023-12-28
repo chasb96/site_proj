@@ -17,7 +17,7 @@ pub struct DatabaseConfig {
 
 #[derive(Deserialize)]
 pub struct AuthenticationConfig {
-    pub hmac_key: String,
+    pub token: String,
 }
 
 #[derive(Deserialize)]

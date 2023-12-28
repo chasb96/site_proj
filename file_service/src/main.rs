@@ -10,10 +10,10 @@ mod routes;
 mod health;
 mod config;
 mod data_stores;
-mod nodes;
 mod util;
 mod startup;
 mod files;
+mod auth;
 
 #[tokio::main]
 async fn main() {

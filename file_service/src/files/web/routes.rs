@@ -1,8 +1,9 @@
 use axum::{Json, http::{StatusCode, Response, header::{CONTENT_TYPE, CONTENT_DISPOSITION}}, extract::Multipart, body::Body};
-use crate::{util::or_status_code::{OrInternalServerError, OrBadRequest, OrNotFound}, files::{axum::FileDataStoreExtractor, file::NewFileMetadata, store::FileDataStore}};
+use crate::{util::or_status_code::{OrInternalServerError, OrBadRequest, OrNotFound}, files::{axum::FileDataStoreExtractor, file::NewFileMetadata, store::FileDataStore}, auth::axum::AuthExtractor};
 use super::{response::CreateFileResponse, request::GetFileRequest};
 
 pub async fn create_file(
+    _: AuthExtractor,
     file_data_store: FileDataStoreExtractor,
     mut multipart: Multipart
 ) -> Result<Json<CreateFileResponse>, StatusCode> { 
