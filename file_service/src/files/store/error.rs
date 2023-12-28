@@ -75,3 +75,40 @@ impl From<io::Error> for GetFileError {
         Self::FileSystem(value)
     }
 }
+
+#[derive(Debug)]
+pub enum DeleteFileError {
+    Sqlx(SqlxError),
+    Pool(PoolError<SqlxError>),
+    FileSystem(io::Error),
+}
+
+impl Error for DeleteFileError { }
+
+impl Display for DeleteFileError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DeleteFileError::Sqlx(e) => e.fmt(f),
+            DeleteFileError::Pool(e) => e.fmt(f),
+            DeleteFileError::FileSystem(e) => e.fmt(f)
+        }
+    }
+}
+
+impl From<SqlxError> for DeleteFileError {
+    fn from(value: SqlxError) -> Self {
+        Self::Sqlx(value)
+    }
+}
+
+impl From<PoolError<SqlxError>> for DeleteFileError {
+    fn from(value: PoolError<SqlxError>) -> Self {
+        Self::Pool(value)
+    }
+}
+
+impl From<io::Error> for DeleteFileError {
+    fn from(value: io::Error) -> Self {
+        Self::FileSystem(value)
+    }
+}

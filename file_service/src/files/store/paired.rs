@@ -24,6 +24,10 @@ where
     async fn get_bytes_by_id(&self, id: i32) -> Result<Option<bytes::Bytes>, super::error::GetFileError> {
         self.bytes.get_by_id(id).await
     }
+
+    async fn delete(&self, id: i32) -> Result<bool, super::error::DeleteFileError> {
+        Ok(self.meta.delete(id).await? && self.bytes.delete(id).await?)
+    }
 }
 
 impl<T, S> Default for Paired<T, S>

@@ -43,4 +43,29 @@ impl FileStoreMeta for PostgresDatabase {
             .await
             .map_err(Into::into)
     }
+
+    async fn delete(&self, id: i32) -> Result<bool, super::error::DeleteFileError> {
+        const DELETE_QUERY: &'static str = r#"
+            WITH delete
+            AS (
+                DELETE
+                FROM files
+                WHERE id = $1
+                RETURNING id
+            )
+            SELECT COUNT(id) AS count
+            FROM delete
+        "#;
+
+        let mut conn = self.connection_pool
+            .get()
+            .await?;
+
+        sqlx::query(DELETE_QUERY)
+            .bind(id)
+            .map(|row: PgRow| row.get::<i32, &str>("count") == 1)
+            .fetch_one(conn.as_mut())
+            .await
+            .map_err(Into::into)
+    }
 }

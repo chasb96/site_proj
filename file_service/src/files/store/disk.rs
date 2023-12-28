@@ -31,4 +31,11 @@ impl FileStoreBytes for DiskDataStore {
 
         Ok(Some(bytes))
     }
+
+    async fn delete(&self, id: i32) -> Result<bool, super::error::DeleteFileError> {
+        fs::remove_file(format!("{}/{}/0", self.directory, id))
+            .and_then(|_| fs::remove_dir(format!("{}/{}", self.directory, id)))
+            .map(|_| true)
+            .map_err(Into::into)
+    }
 }

@@ -17,6 +17,10 @@ impl FileDataStore for FileDataStoreExtractor {
     async fn get_bytes_by_id(&self, id: i32) -> Result<Option<Bytes>, GetFileError> {
         self.0.get_bytes_by_id(id).await
     }
+
+    async fn delete(&self, id: i32) -> Result<bool, super::store::error::DeleteFileError> {
+        self.0.delete(id).await
+    }
 }
 
 impl Default for FileDataStoreExtractor {
