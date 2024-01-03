@@ -18,9 +18,9 @@ impl<T> FromRequestParts<T> for AuthExtractor {
             .split_once(' ')
             .or_bad_request()?;
 
-        let authorized = match (auth_type.to_uppercase().as_str(), value.to_string()) {
-            ("TOKEN", value) => TokenAuthorizer::default().verify(&value).await,
-            ("BASIC", _) => return Err(StatusCode::NOT_IMPLEMENTED),
+        let authorized = match auth_type.to_uppercase().as_str() {
+            "TOKEN" => TokenAuthorizer::default().verify(value).await,
+            "BASIC" => return Err(StatusCode::NOT_IMPLEMENTED),
             _ => return Err(StatusCode::NOT_IMPLEMENTED),
         };
 

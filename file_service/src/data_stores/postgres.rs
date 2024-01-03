@@ -1,8 +1,6 @@
 use std::{error::Error, fmt::Display, sync::OnceLock};
 use deadpool::managed::{Pool, BuildError};
-
 use crate::config::DatabaseConfig;
-
 use super::deadpool::ConnectionManager;
 
 static CONNECTION_POOL: OnceLock<Pool<ConnectionManager>> = OnceLock::new();
@@ -18,8 +16,8 @@ impl Error for InitializeConnectionPoolError { }
 impl Display for InitializeConnectionPoolError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            InitializeConnectionPoolError::Sqlx(e) => e.fmt(f),
-            InitializeConnectionPoolError::Deadpool(e) => e.fmt(f),
+            InitializeConnectionPoolError::Sqlx(e) => write!(f, "InitializeConnectionPoolError::Sqlx({})", e),
+            InitializeConnectionPoolError::Deadpool(e) => write!(f, "InitializeConnectionPoolError::Deadpool({})", e),
         }
     }
 }

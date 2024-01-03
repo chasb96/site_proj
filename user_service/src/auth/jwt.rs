@@ -13,8 +13,8 @@ impl Error for GenerateJwtError { }
 impl Display for GenerateJwtError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenerateJwtError::HmacKey(e) => Display::fmt(e, f),
-            GenerateJwtError::Signing(e) => Display::fmt(e, f),
+            GenerateJwtError::HmacKey(e) => write!(f, "Invalid HMAC Key: {}", e),
+            GenerateJwtError::Signing(e) => write!(f, "Unable to sign Jwt: {}", e),
         }
     }
 }
